@@ -27,19 +27,21 @@ def homepage():
 @app.route("/shell", methods=["GET", "POST"])
 def web_shell():
     if request.method == "POST":
+        error = False
         with Capturing() as output:
             try:
                 interpreter.runsource(request.form["command"])
             except Exception as e:
                 result = str(e)
-        result = "\n".join(output)
+        if not error:
+            result = "\n".join(output)
         
         return '''
-            <pre>
+            <pre style="max-width:90%; overflow: auto">
                 {}
             </pre>
             <form method="POST">
-                <input type=text name=command>
+                <textarea name=command></textarea>
                 <input type=submit value="Execute">
             </form>
         '''.format(escape(result))
@@ -47,7 +49,7 @@ def web_shell():
     else:
         return '''
             <form method="POST">
-                <input type=text name=command>
+                <textarea name=command></textarea>
                 <input type=submit value="Execute">
             </form>
         '''
